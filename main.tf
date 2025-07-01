@@ -14,11 +14,55 @@ data "aws_ami" "app_ami" {
   owners = ["979382823631"] # Bitnami
 }
 
-resource "aws_instance" "blog-1" {
+  data"aws_vpc" "default" {
+    default = true
+  }
+
+
+resource "aws_instance" "blog" {
   ami           = data.aws_ami.app_ami.id
   instance_type = var.instance_type
 
+  vpc_security_group_ids = [aws_security_group.blog.id]
+
   tags = {
-    Name = "blog-1"
+    Name = "Learning Terraform"
   }
 }
+
+resource "aws_security_group" "blog" {
+  name = "blog_sg"
+  vpc_id = data.aws_vpc.default.id
+  description = "Allow http and https traffic. Allow traffic from anywhere"
+}
+
+resource "aws_security_group_rule" "blog_http_in" {
+  type = "ingress"
+  from_port = 80
+  to_port = 80
+  protocol = "tcp"
+  cidr_blocks = [0.0.0.0/0] # Allow HTTP traffic from anywhere
+  
+  security_group_id = aws_security_group.blog.id
+  }
+
+resource "aws_security_group_rule" "blog_https_in" {
+  type = "ingress"
+  from_port = 443
+  to_port = 443
+  protocol = "tcp"
+  cidr_blocks = [0.0.0.0/0] # Allow HTTPS traffic from anywhere
+
+  security_group_id = aws_security_group.blog.id
+}
+
+resource "aws_security_group_rule" "blog_egrees_out" {
+  type = "egress"
+  from_port = 0
+  to_port = 0
+  protocol = "-1" # Allow all outbound traffic
+  cidr_blocks = [0.0.0.0/0] # Allow HTTPS traffic from anywhere
+
+  security_group_id = aws_security_group.blog.id
+}
+
