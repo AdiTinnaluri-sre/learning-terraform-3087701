@@ -84,12 +84,12 @@ module "blog_alb" {
       protocol         = "HTTP"
       port             = 80
       target_type      = "instance"
-      targets          = {
-        my_target = {
-          target_id = aws_instance.blog.id
+      targets          = [
+        {
+        target_id = aws_instance.blog.id
         }
-      }  
-   }    
+      ]
+   }
   ]
 
   listeners = [
