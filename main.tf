@@ -78,27 +78,27 @@ module "blog_alb" {
 
   
 
-  target_groups = {
+  target_groups = [
+    {
       name_prefix      = "blog-"
       protocol         = "HTTP"
       port             = 80
       target_type      = "instance"
-      targets          = [
-        {
-          id   = aws_instance.blog.id
-          port = 80
+      targets          = {
+        my_target = {
+          target_id = aws_instance.blog.id
         }
-      ]
+      }  
+   }    
+  ]
 
-      http_tcp_listeners = [
-        {
-          port     = 80
-          protocol = "HTTP"
-          target_group_index = 0
-        }
-      ]
-  }
-
+  http_tcp_listeners = [
+    {
+      port     = 80
+      protocol = "HTTP"
+      target_group_index = 0
+    }
+  ]
 
 
   tags = {
